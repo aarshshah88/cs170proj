@@ -136,6 +136,52 @@ def graphWithAPathGenerator(n, k):
 
 	return G
 
+def generateComplicatedPathGraph(n, k):
+	G = nx.Graph()
+	nodeAdder(G, 0, 20)
+	nodeAdder(G, 1, 5)
+	nodeAdder(G, 2, 30)
+	nodeAdder(G, 3, 30)
+	nodeAdder(G, 4, 30)
+	edgeAdder(G, 0, 1, 65)
+	edgeAdder(G, 0, 3, 40)
+	edgeAdder(G, 1, 3, 55)
+	edgeAdder(G, 1, 2, 55)
+	edgeAdder(G, 1, 4, 55)
+	edgeAdder(G, 2, 3, 55)
+	edgeAdder(G, 3, 4, 55)
+
+	nodeAdder(G, 5, random.randint(10, 20))
+	edgeAdder(G, 1, 5, random.randint(50, 75))
+	
+	current_nodes = nx.number_of_nodes(G)
+	remaining_nodes = n - nx.number_of_nodes(G)
+
+	for i in np.arange(remaining_nodes):
+		j = i + current_nodes
+		r = random.randint(10, 20) #conquesting cost
+		nodeAdder(G, j, r)
+		q = random.randint(50, 75) #edge cost
+		edgeAdder(G, j-1, j, q)
+	
+	random_weight = random.randint(50, 75)
+	edgeAdder(G, 0, n - 1, q)
+	
+	remaining_edges = k - nx.number_of_edges(G)
+
+	for i in np.arange(remaining_edges):
+		r = random.randint(76, 100) #random edge cost that is strictly greater than the edge costs in the path
+		u = random.randint(0, n - 1) #random vertex in G
+		v = random.randint(0, n - 1) #random vertex in G
+		if u != v:
+			if G.has_edge(u, v) == False:
+				edgeAdder(G, u, v, r)
+
+	print(nx.number_of_nodes(G))
+	print(nx.number_of_edges(G))
+
+	return G
+
 # G = nx.Graph()
 # nodeAdder(G, 0, 20)
 # nodeAdder(G, 1, 5)
@@ -152,6 +198,6 @@ def graphWithAPathGenerator(n, k):
 
 # write_to_file(G)
 
-G=graphWithAPathGenerator(50, 200)
+G=generateComplicatedPathGraph(50, 200)
 nx.write_graphml(G, 'testInputs.xml')
-write_to_file(G)
+#write_to_file(G)
