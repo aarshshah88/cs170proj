@@ -2,6 +2,7 @@ import sys
 import networkx as nx
 import numpy as np
 import random
+import minimum_dominating
 
 
 #takes in a graph and edge between u and v with weight x
@@ -52,7 +53,16 @@ def ALcreator(G):
 
 #takes in a graph and writes it to a file
 def write_to_file(G):
-	f = open("Inputs.txt", "w")
+	f = ''
+	if nx.number_of_nodes(G) == 50:
+		f = open("50.in", "w")
+	elif nx.number_of_nodes(G) == 100:
+		f = open("100.in", "w")
+	elif nx.number_of_nodes(G) == 200:
+		f = open("200.in", "w")
+	else:
+		f = open("Inputs.txt", "w")
+
 	adjacency_list_formatted =  []
 	temp = ALcreator(G)
 	print(temp)
@@ -144,7 +154,7 @@ def generateComplicatedPathGraph(n, k):
 	nodeAdder(G, 3, 30)
 	nodeAdder(G, 4, 30)
 	edgeAdder(G, 0, 1, 65)
-	edgeAdder(G, 0, 3, 40)
+	edgeAdder(G, 0, 3, 50)
 	edgeAdder(G, 1, 3, 55)
 	edgeAdder(G, 1, 2, 55)
 	edgeAdder(G, 1, 4, 55)
@@ -177,8 +187,6 @@ def generateComplicatedPathGraph(n, k):
 			if G.has_edge(u, v) == False:
 				edgeAdder(G, u, v, r)
 
-	print(nx.number_of_nodes(G))
-	print(nx.number_of_edges(G))
 
 	return G
 
@@ -199,5 +207,5 @@ def generateComplicatedPathGraph(n, k):
 # write_to_file(G)
 
 G=generateComplicatedPathGraph(50, 200)
-nx.write_graphml(G, 'testInputs.xml')
-#write_to_file(G)
+write_to_file(G)
+minimum_dominating.minimum_dominating_solver(G, 0)
