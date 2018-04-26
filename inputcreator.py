@@ -2,7 +2,7 @@ import sys
 import networkx as nx
 import numpy as np
 import random
-import minimum_dominating
+from networkx.algorithms import approximation, shortest_paths, tree, traversal
 
 
 #takes in a graph and edge between u and v with weight x
@@ -61,7 +61,7 @@ def write_to_file(G):
 	elif nx.number_of_nodes(G) == 200:
 		f = open("200.in", "w")
 	else:
-		f = open("Inputs.txt", "w")
+		f = open("temp.in", "w")
 
 	adjacency_list_formatted =  []
 	temp = ALcreator(G)
@@ -190,13 +190,103 @@ def generateComplicatedPathGraph(n, k):
 
 	return G
 
+def test(G):
+	for edge in G.edges():
+		print(edge)
+
+def minimum_dominating_solver(G, start):
+	dom_set = approximation.dominating_set.min_weighted_dominating_set(G, 'conquesting_cost') # finds minimum weighted dominating set
+	floyd_warshall = dict(shortest_paths.weighted.all_pairs_dijkstra_path(G))
+	floyd_warshall_lengths = dict(shortest_paths.weighted.all_pairs_dijkstra_path_length(G))
+	G_prime = nx.Graph()
+	nodeAdder(G_prime, start, G.node[start]['conquesting_cost'])
+	for node in dom_set:
+		nodeAdder(G_prime, node, G.node[node]['conquesting_cost'])
+		start_to_node_path_weight = floyd_warshall_lengths[start][node]
+		edgeAdder(G_prime, start, node, start_to_node_path_weight)
+		for each in dom_set:
+			if each != node:
+				if not G.has_edge(node, each):
+					edge_weight = floyd_warshall_lengths[node][each]
+					edgeAdder(G_prime, node, each, edge_weight)
+	mst_G_prime = tree.mst.minimum_spanning_tree(G_prime, weight='weight')
+	dfs_on_graph = traversal.depth_first_search.dfs_edges(mst_G_prime, source=start)
+	bad_tour = []
+	for each in dfs_on_graph:
+		bad_tour.append(floyd_warshall[each[0]][each[1]])
+	prev = None
+	tour = []
+	for path in bad_tour:
+		if prev != None:
+			if path[0] != prev[len(prev) - 1]:
+				tour.append(floyd_warshall[prev[len(prev) - 1]][path[0]])
+		tour.append(path)
+		prev = path
+	tour.append(floyd_warshall[prev[len(prev) - 1]][start])
+	FINAL_TOUR = []
+	counter = 0
+	for path in tour:
+		for node in path:
+			if counter != 0:
+				if node != FINAL_TOUR[counter - 1]:
+					FINAL_TOUR.append(node)
+					counter += 1
+			else:
+				FINAL_TOUR.append(node)
+				counter += 1
+	# last = None	
+	# for num in range(len(FINAL_TOUR)):
+
+	# 	if num == 0:
+	# 		pass
+	# 	if not G.has_edge(FINAL_TOUR[num], FINAL_TOUR[num-1]):
+	# 		print(FINAL_TOUR[num-1], FINAL_TOUR[num], "are not connected")
+
+		# if last == None:
+		# 	last = check
+		# else:
+		# 	if not G.has_edge(last, check):
+		# 		print(last, check, "are not connected")
+		# 		last = check
+
+	return dom_set, FINAL_TOUR
+
+
+def find_weight(G, path): # Takes in a graph and path. Returns the weight of the path.
+	path_weight = 0
+	prev = None
+	for node in path: 
+		if prev != None: # first node in path
+			path_weight += G[prev][node]['weight']
+		prev = node
+	return path_weight
+
+def outputwriter(G):
+	if nx.number_of_nodes(G) == 50:
+		f = open("50.out", "w")
+	elif nx.number_of_nodes(G) == 100:
+		f = open("100.out", "w")
+	elif nx.number_of_nodes(G) == 200:
+		f = open("200.out", "w")
+	else:
+		f = open("temp.out", "w")
+	p, q = minimum_dominating_solver(G, 0)
+
+	for x in q:
+		f.write('' + str(x) + ' ')
+
+	f.write('\n')
+
+	for y in p:
+		f.write('' + str(y) + ' ')
+
 # G = nx.Graph()
 # nodeAdder(G, 0, 20)
 # nodeAdder(G, 1, 5)
 # nodeAdder(G, 2, 30)
 # nodeAdder(G, 3, 30)
 # nodeAdder(G, 4, 30)
-# edgeAdder(G, 0, 1, 20)
+# edgeAdder(G, 0, 1, 13)
 # edgeAdder(G, 0, 3, 5)
 # edgeAdder(G, 1, 3, 10)
 # edgeAdder(G, 1, 2, 10)
@@ -204,8 +294,9 @@ def generateComplicatedPathGraph(n, k):
 # edgeAdder(G, 2, 3, 10)
 # edgeAdder(G, 3, 4, 10)
 
-# write_to_file(G)
 
-G=generateComplicatedPathGraph(50, 200)
+G=generateComplicatedPathGraph(200, 1500)
 write_to_file(G)
-minimum_dominating.minimum_dominating_solver(G, 0)
+minimum_dominating_solver(G, 0)
+outputwriter(G)
+# nx.write_graphml(G, "testinputs.xml")
