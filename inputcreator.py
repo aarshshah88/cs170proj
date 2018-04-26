@@ -1,4 +1,5 @@
 import sys
+import os
 import networkx as nx
 import numpy as np
 import random
@@ -85,9 +86,13 @@ def read_to_array(file_input):
 
     with open(file_input, "r") as f:
         lines = f.readlines()
+        count = 0
         for line in lines:
-            checkpoints_from_file.append([float(x) for x in line.split(",")])
-        print checkpoints_from_file
+        	if count >= 3:
+        		temp = [str(x) for x in line.strip().split()]
+        		checkpoints_from_file.append(temp)
+
+        	count += 1
 
     return checkpoints_from_file
 
@@ -273,15 +278,16 @@ def find_weight(G, path): # Takes in a graph and path. Returns the weight of the
 		prev = node
 	return path_weight
 
-def outputwriter(G):
-	if nx.number_of_nodes(G) == 50:
-		f = open("50.out", "w")
-	elif nx.number_of_nodes(G) == 100:
-		f = open("100.out", "w")
-	elif nx.number_of_nodes(G) == 200:
-		f = open("200.out", "w")
-	else:
-		f = open("temp.out", "w")
+def outputwriter(G, string):
+	# if nx.number_of_nodes(G) == 50:
+	# 	f = open("50.out", "w")
+	# elif nx.number_of_nodes(G) == 100:
+	# 	f = open("100.out", "w")
+	# elif nx.number_of_nodes(G) == 200:
+	# 	f = open("200.out", "w")
+	# else:
+	# 	f = open("temp.out", "w")
+	f = open(string, "w")
 	p, q = minimum_dominating_solver(G, 0)
 
 	for x in q:
@@ -291,6 +297,35 @@ def outputwriter(G):
 
 	for y in p:
 		f.write('' + str(y) + ' ')
+
+def inputToGraph(array):
+	G = nx.Graph()
+	for i in np.arange(len(array)):
+		nodeAdder(G, i, 0)
+
+	for i in np.arange(len(array)):
+		for j in np.arange(len(array[i])):
+			if i == j:
+				G.node[i]['conquesting_cost'] = float(array[i][j])
+			else:
+				if array[i][j] != 'x' and array[i][j] != 'x\n':
+					edgeAdder(G, i, j, float(array[i][j]))
+
+	return G
+
+def runOutputs():
+	input_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs")
+	output_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/outputs")
+	#count = 20
+	for subdir, dirs, files in os.walk(input_directory):
+		for file in files:
+			if file.endswith(".in"):
+				#if count >= 0:
+				print(file)
+				completeName = os.path.join(output_directory, file[:len(file)-3] + '.out')
+				G = inputToGraph(read_to_array("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs/" + file))
+				outputwriter(G, completeName)
+
 
 # G = nx.Graph()
 # nodeAdder(G, 0, 20)
@@ -307,10 +342,15 @@ def outputwriter(G):
 # edgeAdder(G, 3, 4, 10)
 
 
-G=generateComplicatedPathGraph(200, 1500)
-write_to_file(G)
-minimum_dominating_solver(G, 0)
-outputwriter(G)
-print("read to array")
-read_to_array("50.in")
+# G=generateComplicatedPathGraph(200, 1500)
+# write_to_file(G)
+# minimum_dominating_solver(G, 0)
+# outputwriter(G)
+# print("read to array")
+# G = inputToGraph(read_to_array("50.in"))
+
+# outputwriter(G, 'C:\Users\nicol\cs170\Project\new-project-starter-code\outputs' + '\tempout.out')
+
+runOutputs()
+				#count -= 1
 # nx.write_graphml(G, "testinputs.xml")
