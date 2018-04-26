@@ -80,6 +80,18 @@ def write_to_file(G):
 
 	return temp
 
+def read_to_array(file_input):
+    checkpoints_from_file = [] 
+
+    with open(file_input, "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            checkpoints_from_file.append([float(x) for x in line.split(",")])
+        print checkpoints_from_file
+
+    return checkpoints_from_file
+
+
 #takes in numbers n,k and creates a random graph with n vertices and k edges. Returns graph G
 def graphGenerator(n, k):
 	G = nx.Graph()
@@ -299,4 +311,6 @@ G=generateComplicatedPathGraph(200, 1500)
 write_to_file(G)
 minimum_dominating_solver(G, 0)
 outputwriter(G)
+print("read to array")
+read_to_array("50.in")
 # nx.write_graphml(G, "testinputs.xml")
