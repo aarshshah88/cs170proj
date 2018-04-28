@@ -233,7 +233,6 @@ def minimum_dominating_solver(G, start):
 	dfs_on_graph = traversal.depth_first_search.dfs_edges(mst_G_prime, source=start)
 	bad_tour = []
 	for each in dfs_on_graph:
-		print(each)
 		bad_tour.append(floyd_warshall[each[0]][each[1]])
 	prev = None
 	tour = []
@@ -307,7 +306,6 @@ def outputwriter(G, string, file_input):
 							start_string = words[0]
 						count = count + 1
 	start_int = kingdom_names[0].index(start_string)
-	print(start_int)
 	f = open(string, "w")
 	p, q = minimum_dominating_solver(G, start_int)
 
@@ -369,7 +367,7 @@ def runOutput(num):
 					outputwriter(G, completeName, file)
 					kingdom_names = []
 
-	print(errors)
+	#print(errors)
 
 
 # G = nx.Graph()
@@ -396,6 +394,6 @@ def runOutput(num):
 
 # outputwriter(G, 'C:\Users\nicol\cs170\Project\new-project-starter-code\outputs' + '\tempout.out')
 errors = ['175.in', '336.in', '337.in', '338.in', '505.in', '506.in', '528.in', '529.in']
-runOutput(336)
+runOutput(506)
 				#count -= 1
 # nx.write_graphml(G, "testinputs.xml")
