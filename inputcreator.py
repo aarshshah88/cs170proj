@@ -216,6 +216,8 @@ def test(G):
 
 def minimum_dominating_solver(G, start):
 	dom_set = approximation.dominating_set.min_weighted_dominating_set(G, 'conquesting_cost') # finds minimum weighted dominating set
+	if len(dom_set) == 1 and start in dom_set:
+		return dom_set, [start]
 	floyd_warshall = dict(shortest_paths.weighted.all_pairs_dijkstra_path(G))
 	floyd_warshall_lengths = dict(shortest_paths.weighted.all_pairs_dijkstra_path_length(G))
 	G_prime = nx.Graph()
@@ -290,6 +292,7 @@ def outputwriter(G, string, file_input):
 	# 	f = open("200.out", "w")
 	# else:
 	# 	f = open("temp.out", "w")
+	print(kingdom_names)
 	input_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs")
 	start_string = ''
 	count = 0
@@ -303,11 +306,14 @@ def outputwriter(G, string, file_input):
 					for line in lines:
 						if count == 2:
 							words = [str(x) for x in line.strip().split()]
+							print(words, "here")
 							start_string = words[0]
 						count = count + 1
+
 	start_int = kingdom_names[0].index(start_string)
 	f = open(string, "w")
 	p, q = minimum_dominating_solver(G, start_int)
+
 
 	for x in q:
 		f.write('' + kingdom_names[0][x] + ' ')
@@ -394,6 +400,6 @@ def runOutput(num):
 
 # outputwriter(G, 'C:\Users\nicol\cs170\Project\new-project-starter-code\outputs' + '\tempout.out')
 errors = ['175.in', '336.in', '337.in', '338.in', '505.in', '506.in', '528.in', '529.in']
-runOutput(506)
+runOutput(336)
 				#count -= 1
 # nx.write_graphml(G, "testinputs.xml")
