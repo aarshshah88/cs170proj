@@ -5,6 +5,8 @@ import numpy as np
 import random
 from networkx.algorithms import approximation, shortest_paths, tree, traversal
 
+kingdom_names = []
+
 
 #takes in a graph and edge between u and v with weight x
 def edgeAdder(G, u, v, x):
@@ -82,19 +84,20 @@ def write_to_file(G):
 	return temp
 
 def read_to_array(file_input):
-    checkpoints_from_file = [] 
-
-    with open(file_input, "r") as f:
-        lines = f.readlines()
-        count = 0
-        for line in lines:
-        	if count >= 3:
-        		temp = [str(x) for x in line.strip().split()]
-        		checkpoints_from_file.append(temp)
-
-        	count += 1
-
-    return checkpoints_from_file
+	global kingdom_names
+	checkpoints_from_file = [] 
+	with open(file_input, "r") as f:
+		lines = f.readlines()
+		count = 0
+		for line in lines:
+			new_line = line.replace("Â", '')
+			if count == 1: 
+				kingdom_names.append([str(x) for x in new_line.strip().split()])
+			if count >= 3:
+				temp = [str(x) for x in new_line.strip().split()]
+				checkpoints_from_file.append(temp)
+			count += 1
+	return checkpoints_from_file
 
 
 #takes in numbers n,k and creates a random graph with n vertices and k edges. Returns graph G
@@ -230,6 +233,7 @@ def minimum_dominating_solver(G, start):
 	dfs_on_graph = traversal.depth_first_search.dfs_edges(mst_G_prime, source=start)
 	bad_tour = []
 	for each in dfs_on_graph:
+		print(each)
 		bad_tour.append(floyd_warshall[each[0]][each[1]])
 	prev = None
 	tour = []
@@ -278,7 +282,7 @@ def find_weight(G, path): # Takes in a graph and path. Returns the weight of the
 		prev = node
 	return path_weight
 
-def outputwriter(G, string):
+def outputwriter(G, string, file_input):
 	# if nx.number_of_nodes(G) == 50:
 	# 	f = open("50.out", "w")
 	# elif nx.number_of_nodes(G) == 100:
@@ -287,16 +291,33 @@ def outputwriter(G, string):
 	# 	f = open("200.out", "w")
 	# else:
 	# 	f = open("temp.out", "w")
+	input_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs")
+	start_string = ''
+	count = 0
+	for subdir, dirs, files in os.walk(input_directory):
+		for file in files:
+			# completeName = os.path.join(output_directory, file[:len(file)-3] + '.out')
+			if file_input in file:
+				temp = "C:/Users/nicol/cs170/Project/new-project-starter-code/inputs/" + file_input 
+				with open(temp, "r") as f:
+					lines = f.readlines()
+					for line in lines:
+						if count == 2:
+							words = [str(x) for x in line.strip().split()]
+							start_string = words[0]
+						count = count + 1
+	start_int = kingdom_names[0].index(start_string)
+	print(start_int)
 	f = open(string, "w")
-	p, q = minimum_dominating_solver(G, 0)
+	p, q = minimum_dominating_solver(G, start_int)
 
 	for x in q:
-		f.write('' + str(x) + ' ')
+		f.write('' + kingdom_names[0][x] + ' ')
 
 	f.write('\n')
 
 	for y in p:
-		f.write('' + str(y) + ' ')
+		f.write('' + kingdom_names[0][y] + ' ')
 
 def inputToGraph(array):
 	G = nx.Graph()
@@ -314,6 +335,8 @@ def inputToGraph(array):
 	return G
 
 def runOutputs():
+	global kingdom_names
+	errors = []
 	input_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs")
 	output_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/outputs")
 	#count = 20
@@ -324,7 +347,29 @@ def runOutputs():
 				print(file)
 				completeName = os.path.join(output_directory, file[:len(file)-3] + '.out')
 				G = inputToGraph(read_to_array("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs/" + file))
-				outputwriter(G, completeName)
+				
+				outputwriter(G, completeName, file)
+				kingdom_names = []
+
+	print(errors)
+
+def runOutput(num):
+	global kingdom_names
+	errors = []
+	input_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs")
+	output_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/outputs")
+	#count = 20
+	for subdir, dirs, files in os.walk(input_directory):
+		for file in files:
+			if file.endswith(".in"):
+				if str(num) in file:
+					print(file)
+					completeName = os.path.join(output_directory, file[:len(file)-3] + '.out')
+					G = inputToGraph(read_to_array("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs/" + file))
+					outputwriter(G, completeName, file)
+					kingdom_names = []
+
+	print(errors)
 
 
 # G = nx.Graph()
@@ -350,7 +395,7 @@ def runOutputs():
 # G = inputToGraph(read_to_array("50.in"))
 
 # outputwriter(G, 'C:\Users\nicol\cs170\Project\new-project-starter-code\outputs' + '\tempout.out')
-
-runOutputs()
+errors = ['175.in', '336.in', '337.in', '338.in', '505.in', '506.in', '528.in', '529.in']
+runOutput(336)
 				#count -= 1
 # nx.write_graphml(G, "testinputs.xml")
