@@ -68,7 +68,7 @@ def write_to_file(G):
 
 	adjacency_list_formatted =  []
 	temp = ALcreator(G)
-	print(temp)
+	#print(temp)
 	f.write('' + str(nx.number_of_nodes(G)) + '' + '\n')
 	for x in G.nodes:
 		f.write('' + str(x) + ' ')
@@ -292,7 +292,7 @@ def outputwriter(G, string, file_input):
 	# 	f = open("200.out", "w")
 	# else:
 	# 	f = open("temp.out", "w")
-	print(kingdom_names)
+	#print(kingdom_names)
 	input_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs")
 	start_string = ''
 	count = 0
@@ -306,7 +306,7 @@ def outputwriter(G, string, file_input):
 					for line in lines:
 						if count == 2:
 							words = [str(x) for x in line.strip().split()]
-							print(words, "here")
+							#print(words, "here")
 							start_string = words[0]
 						count = count + 1
 
@@ -400,6 +400,6 @@ def runOutput(num):
 
 # outputwriter(G, 'C:\Users\nicol\cs170\Project\new-project-starter-code\outputs' + '\tempout.out')
 errors = ['175.in', '336.in', '337.in', '338.in', '505.in', '506.in', '528.in', '529.in']
-runOutput(336)
+runOutputs()
 				#count -= 1
 # nx.write_graphml(G, "testinputs.xml")
