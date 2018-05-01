@@ -4,6 +4,8 @@ import networkx as nx
 import numpy as np
 import random
 from networkx.algorithms import approximation, shortest_paths, tree, traversal
+from Christofides import christofides
+
 
 kingdom_names = []
 
@@ -214,6 +216,51 @@ def test(G):
 	for edge in G.edges():
 		print(edge)
 
+def tsp_solver(G, start):
+	"""
+	Solver that computes minimum dominating set, constructs complete graph between
+	start and all nodes in the minimum dominating set. Then uses TSP approximator
+	to approximate a tour.
+	"""
+	# Finds minimum dominating set, and all pairs shortest paths.
+
+	dom_set = approximation.dominating_set.min_weighted_dominating_set(G, 'conquesting_cost')
+	floyd_warshall = dict(shortest_paths.weighted.all_pairs_dijkstra_path(G))
+	floyd_warshall_lengths = dict(shortest_paths.weighted.all_pairs_dijkstra_path_length(G))
+	if len(dom_set) == 1 and start in dom_set: # 2 node edge cases
+		return dom_set, [start]
+	
+	# Make graph with start and all nodes in minumum dominating set.
+	# Make edges between nodes the length of their shortest path.
+
+	G_prime = nx.Graph()
+	nodeAdder(G_prime, start, G.node[start]['conquesting_cost'])
+	for each in dom_set:
+		nodeAdder(G_prime, each, G.node[each]['conquesting_cost'])
+	for each in dom_set:
+		for other in dom_set:
+			if other != each and not G.has_edge(each, other):
+				edgeAdder(G_prime, each, other, floyd_warshall_lengths[each][other])
+
+	# Convert to distance matrix and use Christofides TSP Solver
+
+	distance_matrix = adjaceny_matrix_creator(G_prime)
+	print(distance_matrix)
+	for i in range(len(distance_matrix)):
+		row = distance_matrix[i]
+		for j in range(len(row)):
+			if j <= i:
+				row[j] = 0
+	print(distance_matrix)
+
+	TSP = christofides.compute(distance_matrix)
+	tour = TSP['Christofides_Solution']
+	print(tour)
+
+	# TODO: Reconstruct tour from TSP solver
+		
+
+
 def minimum_dominating_solver(G, start):
 	dom_set = approximation.dominating_set.min_weighted_dominating_set(G, 'conquesting_cost') # finds minimum weighted dominating set
 	if len(dom_set) == 1 and start in dom_set:
@@ -293,14 +340,14 @@ def outputwriter(G, string, file_input):
 	# else:
 	# 	f = open("temp.out", "w")
 	#print(kingdom_names)
-	input_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs")
+	input_directory = os.path.normpath("/Users/shivanesabharwal/cs170proj/inputs")
 	start_string = ''
 	count = 0
 	for subdir, dirs, files in os.walk(input_directory):
 		for file in files:
 			# completeName = os.path.join(output_directory, file[:len(file)-3] + '.out')
 			if file_input in file:
-				temp = "C:/Users/nicol/cs170/Project/new-project-starter-code/inputs/" + file_input 
+				temp = "/Users/shivanesabharwal/cs170proj/inputs/" + file_input 
 				with open(temp, "r") as f:
 					lines = f.readlines()
 					for line in lines:
@@ -309,11 +356,13 @@ def outputwriter(G, string, file_input):
 							#print(words, "here")
 							start_string = words[0]
 						count = count + 1
-
+	print(start_string)					
 	start_int = kingdom_names[0].index(start_string)
 	f = open(string, "w")
-	p, q = minimum_dominating_solver(G, start_int)
+	# p, q = minimum_dominating_solver(G, start_int)
+	tsp_solver(G, start_int)
 
+	return
 
 	for x in q:
 		f.write('' + kingdom_names[0][x] + ' ')
@@ -360,16 +409,16 @@ def runOutputs():
 def runOutput(num):
 	global kingdom_names
 	errors = []
-	input_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs")
-	output_directory = os.path.normpath("C:/Users/nicol/cs170/Project/new-project-starter-code/outputs")
+	input_directory = os.path.normpath("/Users/shivanesabharwal/cs170proj/inputs")
+	output_directory = os.path.normpath("/Users/shivanesabharwal/cs170proj/outputs")
 	#count = 20
 	for subdir, dirs, files in os.walk(input_directory):
 		for file in files:
 			if file.endswith(".in"):
 				if str(num) in file:
-					print(file)
+					print(file, "why")
 					completeName = os.path.join(output_directory, file[:len(file)-3] + '.out')
-					G = inputToGraph(read_to_array("C:/Users/nicol/cs170/Project/new-project-starter-code/inputs/" + file))
+					G = inputToGraph(read_to_array("/Users/shivanesabharwal/cs170proj/inputs/" + file))
 					outputwriter(G, completeName, file)
 					kingdom_names = []
 
@@ -400,6 +449,6 @@ def runOutput(num):
 
 # outputwriter(G, 'C:\Users\nicol\cs170\Project\new-project-starter-code\outputs' + '\tempout.out')
 errors = ['175.in', '336.in', '337.in', '338.in', '505.in', '506.in', '528.in', '529.in']
-runOutputs()
+runOutput(0)
 				#count -= 1
 # nx.write_graphml(G, "testinputs.xml")
