@@ -246,6 +246,8 @@ def tsp_solver(G, start):
 
 	distance_matrix = adjaceny_matrix_creator(G_prime)
 	print(distance_matrix)
+
+	# Converting distance matrix to upper triangular matrix
 	for i in range(len(distance_matrix)):
 		row = distance_matrix[i]
 		for j in range(len(row)):
